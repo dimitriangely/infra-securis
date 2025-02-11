@@ -4,9 +4,9 @@ Voici l'explication détaillée du fichier docker-compose.yml.
 1. Informations Générales
 
 version: '3.8'
-# version: '3.8' : Cela indique la version du format de fichier Docker Compose utilisée. La version 3.8 est compatible avec Docker 18.06.0 et les versions ultérieures. Elle permet d'utiliser des fonctionnalités avancées comme la gestion des réseaux et des volumes.
-# 2. Services
-# La section services définit les conteneurs que Docker Compose va créer et gérer.
+version: '3.8' : Cela indique la version du format de fichier Docker Compose utilisée. La version 3.8 est compatible avec Docker 18.06.0 et les versions ultérieures. Elle permet d'utiliser des fonctionnalités avancées comme la gestion des réseaux et des volumes.
+2. Services
+La section services définit les conteneurs que Docker Compose va créer et gérer.
 
 Service : Firewall
   firewall:
@@ -40,17 +40,17 @@ Service : Firewall
       sleep 10 &&
       tail -f /dev/null'
 
-# Explication :
+Explication :
 
-# image: frrouting/frr:latest : Utilise l'image Docker officielle de FRRouting (FRR), un logiciel de routage réseau. latest signifie qu'il prendra la dernière version disponible.
+image: frrouting/frr:latest : Utilise l'image Docker officielle de FRRouting (FRR), un logiciel de routage réseau. latest signifie qu'il prendra la dernière version disponible.
 
-# container_name: firewall : Nom du conteneur dans Docker.
+container_name: firewall : Nom du conteneur dans Docker.
 
-# privileged: true : Donne des privilèges élevés au conteneur, permettant d'accéder à des fonctionnalités systèmes comme la configuration réseau.
+privileged: true : Donne des privilèges élevés au conteneur, permettant d'accéder à des fonctionnalités systèmes comme la configuration réseau.
 
-# cap_add: - NET_ADMIN : Ajoute la capacité de gérer les interfaces réseau à l'intérieur du conteneur.
+cap_add: - NET_ADMIN : Ajoute la capacité de gérer les interfaces réseau à l'intérieur du conteneur.
 
-# environment: - TINI_SUBREAPER=1 : Configure l'environnement pour gérer correctement les processus enfants dans le conteneur.
+environment: - TINI_SUBREAPER=1 : Configure l'environnement pour gérer correctement les processus enfants dans le conteneur.
 
 networks :
 
@@ -76,7 +76,7 @@ chown -R frr:frr /etc/frr : Change le propriétaire des fichiers pour l'utilisat
 sleep 10 && tail -f /dev/null : Attend 10 secondes, puis garde le conteneur actif sans rien faire (utile pour des tests ou débogage).
 
 Service : Router
-# Le service router est similaire au firewall, avec quelques différences :
+Le service router est similaire au firewall, avec quelques différences :
   router:
     image: frrouting/frr:latest
     container_name: router
@@ -111,13 +111,13 @@ Service : Router
       test: ["CMD", "vtysh", "-c", "show ip ospf neighbor"]
       interval: 30s
       retries: 3
-# Différences principales :
+Différences principales :
 
-# BGP activé : bgpd=yes dans le fichier daemons, ce qui active le protocole de routage BGP en plus de OSPF.
-# Vérification de santé (healthcheck) :
-#test: ["CMD", "vtysh", "-c", "show ip ospf neighbor"] : Vérifie si le voisin OSPF est actif.
-# interval: 30s : Effectue la vérification toutes les 30 secondes.
-# retries: 3 : Si l’échec survient trois fois de suite, le conteneur est marqué comme non sain.
+BGP activé : bgpd=yes dans le fichier daemons, ce qui active le protocole de routage BGP en plus de OSPF.
+Vérification de santé (healthcheck) :
+test: ["CMD", "vtysh", "-c", "show ip ospf neighbor"] : Vérifie si le voisin OSPF est actif.
+interval: 30s : Effectue la vérification toutes les 30 secondes.
+retries: 3 : Si l’échec survient trois fois de suite, le conteneur est marqué comme non sain.
 
 3. Services 
 Service : DNS
@@ -146,15 +146,15 @@ Service : DNS
         };' > /data/bind/named.conf;
       fi &&
       /sbin/entrypoint.sh"
-# Explication :
+Explication :
 
-# image: sameersbn/bind:latest : Utilise l'image Docker pour BIND, un serveur DNS populaire.
+image: sameersbn/bind:latest : Utilise l'image Docker pour BIND, un serveur DNS populaire.
 
-#container_name: dns : Nom du conteneur.
+container_name: dns : Nom du conteneur.
 
-# privileged: true : Donne des privilèges élevés pour gérer des configurations réseau.
+privileged: true : Donne des privilèges élevés pour gérer des configurations réseau.
 
-# networks: dmz_in : Connecté au réseau dmz_in avec l'IP 10.0.0.2.
+networks: dmz_in : Connecté au réseau dmz_in avec l'IP 10.0.0.2.
 
 ports :
 
@@ -197,19 +197,19 @@ Modifier
       fi &&
       /entrypoint.sh"
 
-# Explication :
+Explication :
 
-# image: networkboot/dhcpd:latest : Utilise l'image Docker pour un serveur DHCP (Dynamic Host Configuration Protocol).
+image: networkboot/dhcpd:latest : Utilise l'image Docker pour un serveur DHCP (Dynamic Host Configuration Protocol).
 
-# container_name: dhcp : Nom du conteneur.
+container_name: dhcp : Nom du conteneur.
 
-# privileged: true : Nécessaire pour attribuer des adresses IP via DHCP.
+privileged: true : Nécessaire pour attribuer des adresses IP via DHCP.
 
-# networks: dmz_in : Connecté au réseau dmz_in avec l'IP 10.0.0.3.
+networks: dmz_in : Connecté au réseau dmz_in avec l'IP 10.0.0.3.
 
-# ports: "6767:67/udp" : Le port 67/udp (utilisé par DHCP) est redirigé vers 6767 sur l'hôte.
+ports: "6767:67/udp" : Le port 67/udp (utilisé par DHCP) est redirigé vers 6767 sur l'hôte.
 
-# volumes: ./dhcp:/data : Monte le dossier local ./dhcp dans le conteneur pour stocker les configurations DHCP.
+volumes: ./dhcp:/data : Monte le dossier local ./dhcp dans le conteneur pour stocker les configurations DHCP.
 
 command :
 
@@ -235,17 +235,17 @@ Modifier
       - "3128:3128"
     command: bash -c "set -e && export DEBIAN_FRONTEND=noninteractive && apt update && apt install -y --reinstall iproute2 iputils-ping iptables net-tools && /sbin/entrypoint.sh"
 
-# Explication :
+Explication :
 
-# image: sameersbn/squid:latest : Utilise l'image Docker pour Squid, un serveur proxy.
+image: sameersbn/squid:latest : Utilise l'image Docker pour Squid, un serveur proxy.
 
-# container_name: squid : Nom du conteneur.
+container_name: squid : Nom du conteneur.
 
-# privileged: true : Nécessaire pour gérer les configurations réseau.
+privileged: true : Nécessaire pour gérer les configurations réseau.
 
-# networks: dmz_out : Connecté au réseau dmz_out avec l'IP 10.32.0.4.
+networks: dmz_out : Connecté au réseau dmz_out avec l'IP 10.32.0.4.
 
-# ports: "3128:3128" : Redirige le port 3128 (port par défaut pour Squid Proxy) du conteneur vers l'hôte.
+ports: "3128:3128" : Redirige le port 3128 (port par défaut pour Squid Proxy) du conteneur vers l'hôte.
 
 command :
 
@@ -263,15 +263,15 @@ Modifier
         ipv4_address: 10.32.0.5
     command: bash -c "set -e && export DEBIAN_FRONTEND=noninteractive && apt update && apt install -y --reinstall iproute2 iputils-ping iptables net-tools && syslog-ng -F"
 
-# Explication :
+Explication :
 
-# image: balabit/syslog-ng:latest : Utilise l'image Docker pour syslog-ng, un serveur de gestion des logs.
+image: balabit/syslog-ng:latest : Utilise l'image Docker pour syslog-ng, un serveur de gestion des logs.
 
-# container_name: syslog : Nom du conteneur.
+container_name: syslog : Nom du conteneur.
 
-# privileged: true : Nécessaire pour gérer les logs système.
+privileged: true : Nécessaire pour gérer les logs système.
 
-# networks: dmz_out : Connecté au réseau dmz_out avec l'IP 10.32.0.5.
+networks: dmz_out : Connecté au réseau dmz_out avec l'IP 10.32.0.5.
 
 command :
 
@@ -295,15 +295,15 @@ Modifier
       ip route del default && ip route add default via 10.64.0.254 && 
       tail -f /dev/null"
 
-# Explication :
+Explication :
 
-# image: debian:12 : Utilise l'image officielle de Debian 12 comme système de base.
+image: debian:12 : Utilise l'image officielle de Debian 12 comme système de base.
 
-# container_name: workstation : Nom du conteneur.
+container_name: workstation : Nom du conteneur.
 
-#privileged: true : Donne des privilèges élevés pour des tests réseau.
+privileged: true : Donne des privilèges élevés pour des tests réseau.
 
-# networks: internal : Connecté au réseau internal avec l'IP 10.64.0.2.
+networks: internal : Connecté au réseau internal avec l'IP 10.64.0.2.
 
 command :
 
@@ -331,12 +331,12 @@ networks:
       config:
         - subnet: 10.64.0.0/12
 
-# Explication :
+Explication :
 
-# dmz_in, dmz_out, et internal sont des réseaux définis avec des sous-réseaux spécifiques.
+dmz_in, dmz_out, et internal sont des réseaux définis avec des sous-réseaux spécifiques.
 
-# driver: bridge : Utilise le pilote réseau bridge pour isoler les conteneurs dans des sous-réseaux distincts.
+driver: bridge : Utilise le pilote réseau bridge pour isoler les conteneurs dans des sous-réseaux distincts.
 
-# ipam: config :
+ipam: config :
 
-# subnet : Définit la plage d'adresses IP pour chaque réseau.
+subnet : Définit la plage d'adresses IP pour chaque réseau.
